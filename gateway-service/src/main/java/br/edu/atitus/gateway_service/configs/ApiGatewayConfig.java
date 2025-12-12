@@ -5,11 +5,13 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import br.edu.atitus.gateway_service.filters.AuthFilter;
+
 @Configuration
 public class ApiGatewayConfig {
 	
 	@Bean
-	RouteLocator getRoutes(RouteLocatorBuilder builder) {
+	RouteLocator getRoutes(RouteLocatorBuilder builder, AuthFilter authFilter) {
 		return builder.routes()
 				.route(p -> p
 						.path("/get")
@@ -17,12 +19,12 @@ public class ApiGatewayConfig {
 								.addRequestHeader("X-USER-NAME", "username")
 								.addRequestParameter("name", "fulano"))
 						.uri("http://httpbin.org:80"))
-				.route(p -> p
-						.path("/products/**")
-						.uri("lb://product-service"))
+				.route(p -> p.path("/checkin/**")
+						.filters(f -> f.filter(authFilter))
+						.uri("lb://von-core-service"))
 				.route(p -> p
 						.path("/ws/products/**")
-						.uri("lb://product-service"))
+						.uri("lb://von-core-service"))
 				.route(p -> p
 						.path("/currency/**")
 						.uri("lb://currency-service"))
